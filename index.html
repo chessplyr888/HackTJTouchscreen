@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--
+/------------------------------------------------------------------------------\
+| Copyright (C) 2012-2013 Leap Motion, Inc. All rights reserved.               |
+| Leap Motion proprietary and confidential. Not for distribution.              |
+| Use subject to the terms of the Leap Motion SDK Agreement available at       |
+| https://developer.leapmotion.com/sdk_agreement, or another agreement         |
+| between Leap Motion and you, your company or other organization.             |
+\------------------------------------------------------------------------------/
+-->
+
+<!--
+
+See additional libraries, guides, and examples at:
+
+ - https://developer.leapmotion.com/downloads/javascript
+ - https://developer.leapmotion.com/getting-started/javascript
+ - https://developer.leapmotion.com/gallery/tags/javascript
+
+-->
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Index Page</title>
+<script src="http://js.leapmotion.com/leap-0.6.4.min.js"></script>
+<script type="text/javascript">
+
+
+
+function vectorToString(vector, digits) {
+  if (typeof digits === "undefined") {
+    digits = 1;
+  }
+  return "(" + vector[0].toFixed(digits) + ", "
+             + vector[1].toFixed(digits) + ", "
+             + vector[2].toFixed(digits) + ")";
+}
+
+function togglePause() {
+  paused = !paused;
+
+  if (paused) {
+    document.getElementById("pause").innerText = "Resume";
+  } else {
+    document.getElementById("pause").innerText = "Pause";
+  }
+}
+
+function pauseForGestures() {
+  if (document.getElementById("pauseOnGesture").checked) {
+    pauseOnGesture = true;
+  } else {
+    pauseOnGesture = false;
+  }
+}
+</script>
+
+</head>
+<body>
+<h1>Index Page</h1>
+<div id="main">
+  <button id="pause" onclick="togglePause()">Pause</button>
+  <input type="checkbox" id="pauseOnGesture" onclick="pauseForGestures()">Pause on gesture</input>
+  
+</div>
+</body>
+</html>
