@@ -47,10 +47,10 @@ function getVectorFromPoints(point1, point2)  {
 //plane is analogous to a(x - x0) + b(y - y0) + c(z - z0) = 0
 function getEquationOfPlaneFromPoints(point1, point2, point3) {
 	//taking point1 as center/origin (0, 0, 0)
-	v1 = getVectorFromPoints(point1, point2);
-	v2 = getVectorFromPoints(point1, point3);
+	u_vector = getVectorFromPoints(point1, point2);
+	v_vector = getVectorFromPoints(point1, point3);
 
-	n = getCrossProduct(v1, v2);
+	n = getCrossProduct(u_vector, v_vector);
 
 	unitNormal = getUnitVector(n);
 
@@ -63,7 +63,7 @@ function getEquationOfPlaneFromPoints(point1, point2, point3) {
 }
 
 //point is an array, indices correspond to x, y, z respectively (e.g. 0 is x)
-//plane is associative array containing normal vector and the center point
+//plane is associative array containing normal vector and the center point 
 function getDistanceFromPointToPlane(point, plane)	{
 	v = getVectorFromPoints(plane.point, point);
 	n = plane.normal;
@@ -108,8 +108,37 @@ function convert3DPointOntoBox(point)	{
 	v_to_point = {"i":dist * plane.normal.i, "j":dist * plane.normal.j, "k":dist * plane.normal.k};
 
 	point_on_plane = [(point[0] - v_to_point.i), (point[1] - v_to_point.j), (point[2] - v_to_point.k)];
+}
 
+function rref(point){
+	// Make the matrix
+	a11 = u_vector.i;
+	a12 = v_vector.i;
+	a13 = point[0];
+	a21 = u_vector.j;
+	a22 = v_vector.j;
+	a23 = point[1];
+	a31 = u_vector.k;
+	a32 = v_vector.k;
+	a33 = point[2];
 
+	// Create matrix A
+	matrixA = [[a11, a12, a13], [a21, a22, a23], [a31, a32, a33]];
+	matrixA = [[a11 / u_vector.i, a12 /  u_vector.i, a13 / u_vector.i], [a21, a22, a23], [a31, a32, a33]];
+
+	tempCol1Row2 = a21 / matrixA[0][0];
+	tempCol1Row3 = a31 / matrixA[0][0];
+
+	// Create pivot in A11
+	matrixA = [matrixA[0], [a21 - (tempCol1Row2 * matrixA[0][0]), a22 - (tempCol1Row2 * matrixA[0][1]), a23 - (tempCol1Row2 * matrixA[0][2])], [a31 - (tempCol1Row3 * matrixA[0][0]), a32 - (tempCol1Row3 * matrixA[0][1]), a33 - (tempCol1Row3 * matrixA[0][2])]];
+
+	// Create pivot in A22
+	matrixA = [matrixA[0], [0, 1, matrixA[1][2] / matrixA[1][1]]];
+
+	c1 = matrixA[0][2];
+	c2 = matrixA[1][2];
+
+	return [c1, c2];
 }
 
 
@@ -123,7 +152,9 @@ var dist;
 var threshold = 40;
 var isTouch;
 var planepoint;
-var distFormulaValue
+var distFormulaValue;
+var u_vector, v_vector;
+var constant1, constant2;
 
 
 Leap.loop(controller, function(frame){
@@ -152,6 +183,11 @@ Leap.loop(controller, function(frame){
 		document.getElementById("distFormula").innerHTML = distFormulaValue;
 		document.getElementById("norm").innerHTML = "x: " + plane.normal.i + "<br>y: " + plane.normal.j + "<br>z: " + plane.normal.k;
 		document.getElementById("point").innerHTML = "x: " + point_on_plane[0] + "<br>y: " + point_on_plane[1] + "<br>z: " + point_on_plane[2];
+
+		[constant1, constant2] = rref(position);
+
+		document.getElementById("constants").innerHTML = "c1: " + constant1 + "<br>c2: " + constant2;
+
 	}
 	
 
