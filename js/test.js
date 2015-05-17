@@ -47,10 +47,10 @@ function getVectorFromPoints(point1, point2)  {
 //plane is analogous to a(x - x0) + b(y - y0) + c(z - z0) = 0
 function getEquationOfPlaneFromPoints(point1, point2, point3) {
 	//taking point1 as center/origin (0, 0, 0)
-	u_vector = getVectorFromPoints(point1, point2);
-	v_vector = getVectorFromPoints(point1, point3);
+	v1 = getVectorFromPoints(point1, point2);
+	v2 = getVectorFromPoints(point1, point3);
 
-	n = getCrossProduct(u_vector, v_vector);
+	n = getCrossProduct(v1, v2);
 
 	unitNormal = getUnitVector(n);
 
@@ -122,18 +122,25 @@ function rref(point){
 	a32 = v_vector.k;
 	a33 = point[2];
 
+	console.log(u_vector);
+	console.log(v_vector);
+	console.log(point);
+
 	// Create matrix A
 	matrixA = [[a11, a12, a13], [a21, a22, a23], [a31, a32, a33]];
-	matrixA = [[a11 / u_vector.i, a12 /  u_vector.i, a13 / u_vector.i], [a21, a22, a23], [a31, a32, a33]];
+	// console.log(matrixA);
+	matrixA = [[a11 / u_vector.i, a12 /  u_vector.i, a13 / u_vector.i], [a21 / u_vector.j, a22 / u_vector.j, a23 / u_vector.j], [a31 / u_vector.k, a32 / u_vector.k, a33 / u_vector.k]];
+	// console.log(matrixA);
 
-	tempCol1Row2 = a21 / matrixA[0][0];
-	tempCol1Row3 = a31 / matrixA[0][0];
+	// Create a pivot in A11
+	matrixA = [matrixA[0], [0, (matrixA[1][1] - matrixA[1][0]), (matrixA[1][2] - matrixA[1][0])], [0, (matrixA[2][1] - matrixA[2][0]), (matrixA[2][2] - matrixA[2][0])]];
+	// console.log(matrixA);
+	matrixA = [matrixA[0], [0, matrixA[1][1] / matrixA[1][1], matrixA[1][2] / matrixA[1][1]]];
+	// console.log(matrixA);
 
-	// Create pivot in A11
-	matrixA = [matrixA[0], [a21 - (tempCol1Row2 * matrixA[0][0]), a22 - (tempCol1Row2 * matrixA[0][1]), a23 - (tempCol1Row2 * matrixA[0][2])], [a31 - (tempCol1Row3 * matrixA[0][0]), a32 - (tempCol1Row3 * matrixA[0][1]), a33 - (tempCol1Row3 * matrixA[0][2])]];
-
-	// Create pivot in A22
-	matrixA = [matrixA[0], [0, 1, matrixA[1][2] / matrixA[1][1]]];
+	// Create a pivot in A22
+	matrixA = [[1, 0, matrixA[0][2] - matrixA[1][2]], matrixA[1]];
+	// console.log(matrixA);
 
 	c1 = matrixA[0][2];
 	c2 = matrixA[1][2];
@@ -154,7 +161,8 @@ var isTouch;
 var planepoint;
 var distFormulaValue;
 var u_vector, v_vector;
-var constant1, constant2;
+var deltaPoint;
+var constant;
 
 
 Leap.loop(controller, function(frame){
@@ -165,6 +173,10 @@ Leap.loop(controller, function(frame){
 	}
 	
 	if(plane){
+
+		u_vector = getVectorFromPoints(regionTopRight, regionTopLeft);
+		v_vector = getVectorFromPoints(regionBottomLeft, regionTopLeft);
+
 		dist = getDistanceFromPointToPlane(position, plane);
 		document.getElementById("distToPlane").innerHTML = dist;
 
@@ -184,9 +196,14 @@ Leap.loop(controller, function(frame){
 		document.getElementById("norm").innerHTML = "x: " + plane.normal.i + "<br>y: " + plane.normal.j + "<br>z: " + plane.normal.k;
 		document.getElementById("point").innerHTML = "x: " + point_on_plane[0] + "<br>y: " + point_on_plane[1] + "<br>z: " + point_on_plane[2];
 
-		[constant1, constant2] = rref(position);
+		deltaPoint = [point_on_plane[0] - regionTopLeft[0], point_on_plane[1] - regionTopLeft[1], point_on_plane[2] - regionTopLeft[2]];
+		constant = rref(deltaPoint);
 
-		document.getElementById("constants").innerHTML = "c1: " + constant1 + "<br>c2: " + constant2;
+		document.getElementById("constants").innerHTML = "c1: " + constant[0] + "<br>c2: " + constant[1];
+
+		comp1 = [c1 * u_vector.i + c2 * v_vector.i - deltaPoint[0], c1 * u_vector.j + c2 * v_vector.j - deltaPoint[1], c1 * u_vector.k + c2* v_vector.k - deltaPoint[2]];
+
+		document.getElementById("comp").innerHTML = "New: " + comp1 + "<br>Old: " + deltaPoint;
 
 	}
 	
@@ -217,7 +234,7 @@ document.onkeypress = function(event) {
 	}
 
 	else if(event.keyCode == 68 || event.keyCode == 100)	{
-		plane = getEquationOfPlaneFromPoints(regionTopLeft, regionTopRight, regionBottomRight);
+		plane = getEquationOfPlaneFromPoints(regionTopLeft, regionTopRight, regionBottomLeft);
 		console.log(plane);
 	}
 }
