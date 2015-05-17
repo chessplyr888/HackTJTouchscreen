@@ -77,6 +77,10 @@ var controller = {enableGestures: true};
 
 var regionTopLeft, regionTopRight, regionBottomRight, regionBottomLeft;
 var position;
+var plane;
+var dist;
+var threshold = 40;
+var isTouch;
 
 Leap.loop(controller, function(frame){
 	if(frame.pointables.length > 0){
@@ -84,6 +88,20 @@ Leap.loop(controller, function(frame){
 		position = pointable.tipPosition;
 		document.getElementById("currentPointable").innerHTML = position;
 	}
+	
+	if(plane){
+		dist = getDistanceFromPointToPlane(position, plane);
+		document.getElementById("distToPlane").innerHTML = dist;
+		if(dist < threshold){
+			isTouch = true;
+			document.getElementById("touch").innerHTML = isTouch;
+		}
+		else{
+			isTouch = false;
+			document.getElementById("touch").innerHTML = isTouch;
+		}
+	}
+
 })
 
 document.onkeypress = function(event) {
