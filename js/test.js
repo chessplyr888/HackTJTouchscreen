@@ -208,10 +208,6 @@ Leap.loop(controller, function(frame){
 
 		document.getElementById("constants").innerHTML = "c1: " + constant[0] + "<br>c2: " + constant[1];
 
-		comp1 = [c1 * u_vector.i + c2 * v_vector.i - deltaPoint[0], c1 * u_vector.j + c2 * v_vector.j - deltaPoint[1], c1 * u_vector.k + c2* v_vector.k - deltaPoint[2]];
-
-		document.getElementById("comp").innerHTML = "New: " + comp1 + "<br>Old: " + deltaPoint;
-
 	}
 	
 
