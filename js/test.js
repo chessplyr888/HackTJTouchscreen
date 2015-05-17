@@ -20,9 +20,11 @@ function getVectorMagnitude(v)	{
 }
 
 function getUnitVector(v)	{
-	x_comp = v.i / getVectorMagnitude(v);
-	y_comp = v.j / getVectorMagnitude(v);
-	z_comp = v.k / getVectorMagnitude(v);
+	v_magnitude = getVectorMagnitude(v);
+
+	x_comp = v.i / v_magnitude;
+	y_comp = v.j / v_magnitude;
+	z_comp = v.k / v_magnitude;
 
 	unitvector = {"i":x_comp, "j":y_comp, "k":z_comp};
 
@@ -52,6 +54,8 @@ function getEquationOfPlaneFromPoints(point1, point2, point3) {
 
 	unitNormal = getUnitVector(n);
 
+	unitNormal = {"i":Math.abs(unitNormal.i), "j":Math.abs(unitNormal.j), "k":Math.abs(unitNormal.k)};
+
 	//plane = {"normal":n, "point":point1};
 	plane = {"normal":unitNormal, "point":point1};
 
@@ -69,10 +73,47 @@ function getDistanceFromPointToPlane(point, plane)	{
 	return distance;
 }
 
+//points are the same as the ones used in the equation
+//convert 3d coordinates to 2d using coefficients of v1, v2 vectors as amounts of x and y coordinates
+function getBoxDimensions()	{
+	//taking point1 as center/origin (0, 0, 0)
+	// v1 = getVectorFromPoints(point1, point2);
+	// v2 = getVectorFromPoints(point2, point3);
+	v1 = getVectorFromPoints(regionTopLeft, regionTopRight);
+	v2 = getVectorFromPoints(regionTopRight, regionbottomRight);
+	///WARNING: the v2 vector is different from the getEquationOfPlaneFromPoints method because it points from point2 to point3
+
+	// unit vectors are not necessary because the distance of the v1 and v2 vectors will also give the coefficients of the unit vectors
+	// v1_unit = getUnitVector(v1);
+	// v2_unit = getUnitVector(v2);
+
+	horizontal_dimension = getVectorMagnitude(v1);
+	vertical_dimension = getVectorMagnitude(v2);
+
+	//dimensions contains the x and y dimensions of a rectangular box sectioned off within the 3D coordinate plane
+	dimensions = {"x":horizontal_dimension, "y":vertical_dimension};
+
+	return dimensions;
+}
+
+function getDistanceBetweenPoints(point1, point2)	{
+	d_squared = (((point2[2] - point1[2]) * (point2[2] - point1[2])) + ((point2[1] - point1[1]) * (point2[1] - point1[1])) + ((point2[0] - point1[0]) * (point2[0] - point1[0])));
+
+	distance = Math.sqrt(d_squared);
+
+	return distance;
+}
+
+function convert3DPointOntoBox(point)	{
+	v_to_point = {"i":dist * plane.normal.i, "j":dist * plane.normal.j, "k":dist * plane.normal.k};
+
+	point_on_plane = [(point[0] - v_to_point.i), (point[1] - v_to_point.j), (point[2] - v_to_point.k)];
+
+
+}
 
 
 ///////////////////////////////////////////////////
-
 var controller = {enableGestures: true};
 
 var regionTopLeft, regionTopRight, regionBottomRight, regionBottomLeft;
@@ -81,6 +122,9 @@ var plane;
 var dist;
 var threshold = 40;
 var isTouch;
+var planepoint;
+var distFormulaValue
+
 
 Leap.loop(controller, function(frame){
 	if(frame.pointables.length > 0){
@@ -92,6 +136,7 @@ Leap.loop(controller, function(frame){
 	if(plane){
 		dist = getDistanceFromPointToPlane(position, plane);
 		document.getElementById("distToPlane").innerHTML = dist;
+
 		if(dist < threshold){
 			isTouch = true;
 			document.getElementById("touch").innerHTML = isTouch;
@@ -100,7 +145,15 @@ Leap.loop(controller, function(frame){
 			isTouch = false;
 			document.getElementById("touch").innerHTML = isTouch;
 		}
+		planepoint = convert3DPointOntoBox(position);
+
+		distFormulaValue = getDistanceBetweenPoints(position, point_on_plane);
+
+		document.getElementById("distFormula").innerHTML = distFormulaValue;
+		document.getElementById("norm").innerHTML = "x: " + plane.normal.i + "<br>y: " + plane.normal.j + "<br>z: " + plane.normal.k;
+		document.getElementById("point").innerHTML = "x: " + point_on_plane[0] + "<br>y: " + point_on_plane[1] + "<br>z: " + point_on_plane[2];
 	}
+	
 
 })
 
@@ -132,3 +185,4 @@ document.onkeypress = function(event) {
 		console.log(plane);
 	}
 }
+
