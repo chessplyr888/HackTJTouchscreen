@@ -1,6 +1,6 @@
 var controller = {enableGestures: true};
 
-var loc1, loc2, loc3, loc4;
+var regionTopLeft, regionTopRight, regionBottomRight, regionBottomLeft;
 var position
 
 Leap.loop(controller, function(frame){
@@ -15,22 +15,22 @@ document.onkeypress = function(event) {
 	// console.log("keypress")
 	if(event.keyCode == 49){
 		console.log("1 pressed");
-		loc1 = position;
-		document.getElementById("location1").innerHTML = loc1;
+		regionTopLeft = position;
+		document.getElementById("topLeft").innerHTML = regionTopLeft;
 	}
 	else if(event.keyCode == 50){
 		console.log("2 pressed");
-		loc2 = position;
-		document.getElementById("location2").innerHTML = loc2;
+		regionTopRight = position;
+		document.getElementById("topRight").innerHTML = regionTopRight;
 	}
 	else if(event.keyCode == 51){
 		console.log("3 pressed");
-		loc3 = position;
-		document.getElementById("location3").innerHTML = loc3;
+		regionBottomRight = position;
+		document.getElementById("botRight").innerHTML = regionBottomRight;
 	}
 	else if(event.keyCode == 52){
 		console.log("4 pressed");
-		loc4 = position;
-		document.getElementById("location4").innerHTML = loc4;
+		regionBottomLeft = position;
+		document.getElementById("botLeft").innerHTML = regionBottomLeft;
 	}
 }
