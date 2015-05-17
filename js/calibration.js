@@ -1,7 +1,7 @@
 var controller = {enableGestures: true};
 
 var regionTopLeft, regionTopRight, regionBottomRight, regionBottomLeft;
-var position
+var position;
 
 Leap.loop(controller, function(frame){
 	if(frame.pointables.length > 0){
@@ -10,6 +10,12 @@ Leap.loop(controller, function(frame){
 		document.getElementById("currentPointable").innerHTML = position;
 	}
 })
+
+
+function debugPlane()	{
+	plane = getEquationOfPlaneFromPoints(regionTopLeft, regionTopRight, regionBottomRight);
+	console.log(plane);
+}
 
 document.onkeypress = function(event) {
 	// console.log("keypress")
@@ -32,5 +38,9 @@ document.onkeypress = function(event) {
 		console.log("4 pressed");
 		regionBottomLeft = position;
 		document.getElementById("botLeft").innerHTML = regionBottomLeft;
+	}
+
+	else if(event.keyCode == 68 || event.keyCode == 100)	{
+		debugPlane();
 	}
 }

@@ -5,7 +5,7 @@ function getDotProduct(v1, v2)	{
 
 //returns cross product vector normal to v1 and v2
 function getCrossProduct(v1, v2) {
-	i = (v1.j * v2.z - v2.j * v1.k);
+	i = (v1.j * v2.k - v2.j * v1.k);
 	j = (v2.i * v1.k - v1.i * v2.k);
 	k = (v1.i * v2.j - v2.i * v1.j);
 
