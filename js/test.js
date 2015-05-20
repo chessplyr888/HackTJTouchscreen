@@ -167,7 +167,7 @@ var constant;
 
 Leap.loop(controller, function(frame){
 	if(frame.pointables.length > 0){
-		var pointable = frame.pointables[0];
+		var pointable = frame.pointables[1];
 		position = pointable.tipPosition;
 		document.getElementById("currentPointable").innerHTML = position;
 	}
