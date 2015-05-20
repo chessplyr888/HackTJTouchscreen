@@ -108,6 +108,8 @@ function convert3DPointOntoBox(point)	{
 	v_to_point = {"i":dist * plane.normal.i, "j":dist * plane.normal.j, "k":dist * plane.normal.k};
 
 	point_on_plane = [(point[0] - v_to_point.i), (point[1] - v_to_point.j), (point[2] - v_to_point.k)];
+
+	return point_on_plane;
 }
 
 function rref(point){
@@ -122,21 +124,21 @@ function rref(point){
 	a32 = v_vector.k;
 	a33 = point[2];
 
-	console.log(u_vector);
-	console.log(v_vector);
-	console.log(point);
+	// console.log(u_vector);
+	// console.log(v_vector);
+	// console.log(point);
 
 	// Create matrix A
 	matrixA = [[a11, a12, a13], [a21, a22, a23], [a31, a32, a33]];
-	console.log(matrixA);
+	// console.log(matrixA);
 	matrixA = [[a11 / u_vector.i, a12 /  u_vector.i, a13 / u_vector.i], [a21 / u_vector.j, a22 / u_vector.j, a23 / u_vector.j], [a31 / u_vector.k, a32 / u_vector.k, a33 / u_vector.k]];
-	console.log(matrixA);
+	// console.log(matrixA);
 
 	// Create a pivot in A11
 	matrixA = [matrixA[0], [0, (matrixA[1][1] - matrixA[0][1]), (matrixA[1][2] - matrixA[0][2])], [0, (matrixA[2][1] - matrixA[0][1]), (matrixA[2][2] - matrixA[0][2])]];
-	console.log(matrixA);
+	// console.log(matrixA);
 	matrixA = [matrixA[0], [0, matrixA[1][1] / matrixA[1][1], matrixA[1][2] / matrixA[1][1]]];
-	console.log(matrixA);
+	// console.log(matrixA);
 
 	// Create a pivot in A22
 	matrixA = [[1, 0, matrixA[0][2] - matrixA[0][1] * matrixA[1][2]], matrixA[1]];
@@ -153,19 +155,28 @@ function rref(point){
 var controller = {enableGestures: true};
 
 var regionTopLeft, regionTopRight, regionBottomRight, regionBottomLeft;
-var position;
 var plane;
-var dist;
+var hand1, hand2;
 var threshold = 40;
+var u_vector, v_vector;
+
+// One finger variables
+var position;
+var dist;
 var isTouch;
 var planepoint;
 var distFormulaValue;
-var u_vector, v_vector;
 var deltaPoint;
 var constant;
-var hand1, hand2;
+
+// Two finger variables
 var position1, position2;
 var dist1, dist2;
+var isTouch1, isTouch2;
+var planepoint1, planepoint2;
+var distFormulaValue1, distFormulaValue2;
+var deltaPoint1, deltaPoint2;
+var constant1, constant2;
 
 
 Leap.loop(controller, function(frame){
@@ -244,17 +255,32 @@ Leap.loop(controller, function(frame){
 		dist2 = getDistanceFromPointToPlane(position2, plane);
 		document.getElementById("distToPlane").innerHTML = "Finger 1 Distance: " + dist1 + "</br>Finger 2 Distance: " + dist2;
 
-		if(dist < threshold){
-			isTouch = true;
-			document.getElementById("touch").innerHTML = isTouch;
+		if(dist1 < threshold && dist2 < threshold){
+			isTouch1 = true;
+			isTouch2 = true;
+			document.getElementById("touch").innerHTML = "Touch 1: " + isTouch1 + "</br>Touch 2: " + isTouch2;
+		}
+		else if(dist1 < threshold && dist2 > threshold){
+			isTouch1 = true;
+			isTouch2 = false;
+			document.getElementById("touch").innerHTML = "Touch 1: " + isTouch1 + "</br>Touch 2: " + isTouch2;
+		}
+		else if(dist1 > threshold && dist2 < threshold){
+			isTouch1 = false;
+			isTouch2 = true;
+			document.getElementById("touch").innerHTML = "Touch 1: " + isTouch1 + "</br>Touch 2: " + isTouch2;
 		}
 		else{
-			isTouch = false;
-			document.getElementById("touch").innerHTML = isTouch;
+			isTouch1 = false;
+			isTouch2 = false;
+			document.getElementById("touch").innerHTML = "Touch 1: " + isTouch1 + "</br>Touch 2: " + isTouch2;
 		}
-		planepoint = convert3DPointOntoBox(position);
 
-		distFormulaValue = getDistanceBetweenPoints(position, point_on_plane);
+		planepoint1 = convert3DPointOntoBox(position1);
+		planepoint2 = convert3DPointOntoBox(position2);
+
+		distFormulaValue1 = getDistanceBetweenPoints(position1, planepoint1);
+		distFormulaValue2 = getDistanceBetweenPoints(position2, planepoint2);
 
 		document.getElementById("distFormula").innerHTML = distFormulaValue;
 		document.getElementById("norm").innerHTML = "x: " + plane.normal.i + "<br>y: " + plane.normal.j + "<br>z: " + plane.normal.k;
