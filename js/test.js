@@ -163,16 +163,33 @@ var distFormulaValue;
 var u_vector, v_vector;
 var deltaPoint;
 var constant;
+var hand1, hand2;
+var position1, position2;
+var dist1, dist2;
 
 
 Leap.loop(controller, function(frame){
-	if(frame.pointables.length > 0){
-		var pointable = frame.pointables[1];
-		position = pointable.tipPosition;
-		document.getElementById("currentPointable").innerHTML = position;
+	if(frame.hands.length > 0){
+		if(frame.hands.length == 1){
+			hand1 = frame.hands[0];
+			var pointable = hand1.fingers[1];
+			position = pointable.tipPosition;
+			document.getElementById("currentPointable").innerHTML = "One Finger" + "</br>Finger 1: " + position;
+		}
+		else if(frame.hands.length == 2){
+			hand1 = frame.hands[0];
+			hand2 = frame.hands[1];
+			var pointable1 = hand1.fingers[1];
+			var pointable2 = hand2.fingers[1];
+			position1 = pointable1.tipPosition;
+			position2 = pointable2.tipPosition;
+			document.getElementById("currentPointable").innerHTML = "Two Fingers" + "</br>Finger 1: " + position1 + "</br>Finger 2: " + position2;
+		}
 	}
 	
-	if(plane){
+
+	// One hand
+	if(plane && frame.hands.length == 1){
 
 		// u_vector = getUnitVector(getVectorFromPoints(regionTopRight, regionTopLeft));
 		// v_vector = getUnitVector(getVectorFromPoints(regionBottomLeft, regionTopLeft));
@@ -186,6 +203,46 @@ Leap.loop(controller, function(frame){
 
 		dist = getDistanceFromPointToPlane(position, plane);
 		document.getElementById("distToPlane").innerHTML = dist;
+
+		if(dist < threshold){
+			isTouch = true;
+			document.getElementById("touch").innerHTML = isTouch;
+		}
+		else{
+			isTouch = false;
+			document.getElementById("touch").innerHTML = isTouch;
+		}
+		planepoint = convert3DPointOntoBox(position);
+
+		distFormulaValue = getDistanceBetweenPoints(position, point_on_plane);
+
+		document.getElementById("distFormula").innerHTML = distFormulaValue;
+		document.getElementById("norm").innerHTML = "x: " + plane.normal.i + "<br>y: " + plane.normal.j + "<br>z: " + plane.normal.k;
+		document.getElementById("point").innerHTML = "x: " + point_on_plane[0] + "<br>y: " + point_on_plane[1] + "<br>z: " + point_on_plane[2];
+
+		deltaPoint = [point_on_plane[0] - regionTopLeft[0], point_on_plane[1] - regionTopLeft[1], point_on_plane[2] - regionTopLeft[2]];
+		constant = rref(deltaPoint);
+
+		document.getElementById("constants").innerHTML = "c1: " + constant[0] + "<br>c2: " + constant[1];
+
+	}
+
+	// Two hands
+	else if(plane && frame.hands.length == 2){
+
+		// u_vector = getUnitVector(getVectorFromPoints(regionTopRight, regionTopLeft));
+		// v_vector = getUnitVector(getVectorFromPoints(regionBottomLeft, regionTopLeft));
+
+		//different points
+		// u_vector = getUnitVector(getVectorFromPoints(regionTopLeft, regionTopRight));
+		// v_vector = getUnitVector(getVectorFromPoints(regionTopRight, regionBottomRight));
+
+		u_vector = getVectorFromPoints(regionTopLeft, regionTopRight);
+		v_vector = getVectorFromPoints(regionTopLeft, regionBottomLeft);
+
+		dist1 = getDistanceFromPointToPlane(position1, plane);
+		dist2 = getDistanceFromPointToPlane(position2, plane);
+		document.getElementById("distToPlane").innerHTML = "Finger 1 Distance: " + dist1 + "</br>Finger 2 Distance: " + dist2;
 
 		if(dist < threshold){
 			isTouch = true;
